@@ -1,0 +1,207 @@
+# Awesome AI Data Center Power Modeling [![Awesome](https://awesome.re/badge.svg)](https://awesome.re)
+
+> A curated list of research, datasets, tools, simulators, and patents for modeling the **power and energy behavior of AI data centers (AIDC)** — from the GPU die, through the VRM/PSU power-delivery chain, up to the rack, site, and grid.
+
+The GPU → VRM → PSU → bus → grid power chain of large-scale AI compute is now one of the fastest-growing and most electrically demanding loads on modern power systems. This list collects work on **characterizing, measuring, generating, forecasting, and mitigating** that power — spanning device-level physics, data-driven trace generation, thermal behavior, grid-side transients, flexibility, and carbon accounting. **110 entries** and counting.
+
+**Scope:** use-phase electrical/energy modeling of AI training and inference. Out of scope: pure ML-accuracy benchmarks, chip microarchitecture unrelated to power, and facility civil/mechanical design.
+
+All arXiv IDs and links were link-checked; every entry resolves to a real, findable artifact. See [CONTRIBUTING](#contributing).
+
+## Contents
+
+- [Surveys & Position Papers](#surveys--position-papers)
+- [Load Characterization & Measurement](#load-characterization--measurement)
+- [Physics-Based Power Modeling (Die → VRM → PSU → Bus)](#physics-based-power-modeling-die--vrm--psu--bus)
+- [Data-Driven Power Trace Generation](#data-driven-power-trace-generation)
+- [Training Power Dynamics](#training-power-dynamics)
+- [Inference Energy & Efficiency](#inference-energy--efficiency)
+- [Grid Impact & Transients](#grid-impact--transients)
+- [Flexibility, Demand Response & Ancillary Services](#flexibility-demand-response--ancillary-services)
+- [Thermal Characterization](#thermal-characterization)
+- [Energy Accounting & Composition](#energy-accounting--composition)
+- [Apple Silicon & Edge](#apple-silicon--edge)
+- [MoE & Sparse Models](#moe--sparse-models)
+- [Load Forecasting](#load-forecasting)
+- [Datasets & Benchmarks](#datasets--benchmarks)
+- [Tools & Simulators](#tools--simulators)
+- [Patents](#patents)
+- [Method Reviews](#method-reviews)
+- [Contributing](#contributing)
+
+---
+
+## Surveys & Position Papers
+
+- **AI Data Centers and Power System Sustainability** — [arXiv:2606.21064](https://arxiv.org/abs/2606.21064), 2026. Synthesis review of how AIDC growth interacts with grid sustainability: marginal-vs-average emissions, workload flexibility as a decarbonization lever, and a critique of annual-matching carbon accounting (Huang, Deb, Zareipour, U Calgary). *Its workload-dynamics figure is a per-unit illustration cited from arXiv:2409.11416, not original measurement.*
+- **Electricity Demand and Grid Impacts of AI Data Centers: Challenges and Prospects** — [arXiv:2509.07218](https://arxiv.org/abs/2509.07218), 2025. Broad survey of AI-data-center grid impacts and mitigation prospects (Chen, Wang, Colacelli, Lee, Xie).
+- **Grid Integration of AI Data Centers: A Critical Review of Energy Storage Solutions** — [arXiv:2603.00415](https://arxiv.org/abs/2603.00415), 2026. Review positioning multi-level energy storage (batteries, supercapacitors, hybrid ESS across server/rack/facility/site) as essential infrastructure for buffering sub-second AI-datacenter load variability and enabling stable grid integration.
+- **Technical Challenges of AI Data Center Integration into Power Grids — A Survey** — [Energies 2026, 19(1), 137 (MDPI)](https://www.mdpi.com/1996-1073/19/1/137), 2026. Grid-centric survey consolidating the technical, operational, and stability challenges of integrating AI data centers into power grids (Technion/TalTech).
+
+## Load Characterization & Measurement
+
+- **The Unseen AI Disruptions for Power Grids: LLM-Induced Transients** — [arXiv:2409.11416](https://arxiv.org/abs/2409.11416), 2024. Transient shocks from LLM data centers on the grid: ultra-low inertia, sharp power surges/drops, peak-to-idle ratios (Li, Mughees, Chen, Li; U Alberta).
+- **POLCA: Power Oversubscription in LLM Cloud Providers** — [arXiv:2308.12908](https://arxiv.org/abs/2308.12908), 2023. Measures LLM inference vs training power waveforms; ~30% power-oversubscription headroom (Patel, Choukse et al.; ASPLOS 2024 as *Characterizing Power Management Opportunities for LLMs in the Cloud*).
+- **A Systematic Characterization of LLM Inference on GPUs** — [arXiv:2512.01644](https://arxiv.org/abs/2512.01644), 2025. Four-dimensional framework; prefill/decode heterogeneity traced to microarchitectural root causes.
+- **From Prompts to Power: Measuring the Energy Footprint of LLM Inference** — [arXiv:2511.05597](https://arxiv.org/abs/2511.05597), 2025. 32,500 measurements across 21 GPUs and 155 models; cross-architecture prediction model (Caravaca, Cuevas, Cuevas).
+- **Empirically-Calibrated H100 Node Power Models for Reducing Uncertainty in AI Training Energy Estimation** — [arXiv:2506.14551](https://arxiv.org/abs/2506.14551), 2025. Measured statistical power models for H100 nodes; observed TDP utilization only ~76% (Newkirk, Fernandez, Koomey et al.).
+- **Measurement of Generative AI Workload Power Profiles for Whole-Facility Data Center Infrastructure Planning** — [arXiv:2604.07345 (data DOI 10.7799/3025227; NREL)](https://arxiv.org/abs/2604.07345), 2026. Measures 0.1 s-resolution H100 node power for training/fine-tuning/inference on MLCommons/vLLM benchmarks and scales via a bottom-up event-driven model to whole-facility demand; releases an open power-trace dataset.
+- **The Energy Cost of Execution-Idle in GPU Clusters** — [arXiv:2604.04745](https://arxiv.org/abs/2604.04745), 2026. Characterizes 'execution-idle', a high-power low-activity GPU state driving large energy waste in serving clusters, and proposes downscaling/load-balancing mitigations (CMU).
+- **Minos: Systematically Classifying Performance and Power Characteristics of GPU Workloads on HPC Clusters** — [arXiv:2604.03591](https://arxiv.org/abs/2604.03591), 2026. Low-cost profiling-based classifier predicting GPU workload power (4% mean error) and performance (3%) to cut characterization overhead on HPC/AI clusters.
+
+## Physics-Based Power Modeling (Die → VRM → PSU → Bus)
+
+- **AI Load Dynamics — A Power Electronics Perspective** — [arXiv:2502.01647](https://arxiv.org/abs/2502.01647), 2025. Layered GPU → VRM → PSU power-chain analysis; slew-rate limits; energy-buffering mitigation (Li, Li; U Alberta).
+- **Dynamic Modeling of Data-Center Power Delivery for Power System Resonance Analysis** — [arXiv:2604.06624](https://arxiv.org/abs/2604.06624), 2026. Component-level analytical model of the datacenter power-delivery chain preserving inter-stage control interactions, showing how server-load fluctuations amplify grid resonance (Zhao & Zhao).
+- **Fast-Response Variable-Frequency Series-Capacitor Buck VRM Through Integrated Control Approaches** — [arXiv:2507.10086](https://arxiv.org/abs/2507.10086), 2025. Integrated linear + time-optimal (Pontryagin) control for series-capacitor Buck VRMs powering AI workloads, achieving >10x faster voltage recovery on full-load steps.
+- **A Comprehensive Design Framework for Vertical Power Delivery in High-Performance Computing** — [arXiv:2606.28837](https://arxiv.org/abs/2606.28837), 2026. Distributed vertical-power-delivery architecture with substrate-embedded GaN switches reaching 84-87.6% system-wide 48V-to-1V efficiency for HPC/AI chiplets.
+- **Ultra-Low-Profile Single-Stage Voltage Regulator Module (VRM) for Next-Generation AI Accelerators** — [IEEE APEC 2025 (Xplore 10977513)](https://ieeexplore.ieee.org/document/10977513/), 2025. Cascaded transformer-coupled 3.9 mm single-stage 54V-to-0.8V VRM mountable under the accelerator for vertical power delivery, 89% peak efficiency (Cambridge).
+
+## Data-Driven Power Trace Generation
+
+- **From Servers to Sites: Compositional Power Trace Generation of LLM Inference for Infrastructure Planning** — [arXiv:2603.18383](https://arxiv.org/abs/2603.18383), 2026. GMM state discovery + BiGRU temporal classifier + per-state AR(1); Server→Rack→Row→Site aggregation; clean dense/MoE fidelity bifurcation (Wilkins, Kazhamiaka, Rajagopal). Code: [powertrace-sim](https://github.com/grantwilkins/powertrace-sim).
+
+## Training Power Dynamics
+
+- **Power Stabilization for AI Training Datacenters** — [arXiv:2508.14318](https://arxiv.org/abs/2508.14318), 2025. Tens-of-thousands-GPU training power oscillation; three-tier (software/hardware/infrastructure) co-mitigation; checkpoint spikes (Choukse et al.).
+- **Characterizing the Efficiency of Distributed Training: A Power, Performance, and Thermal Perspective** — [arXiv:2509.10371](https://arxiv.org/abs/2509.10371), 2025. Multi-GPU distributed LLM training characterization showing how topology, parallelism, and configuration jointly determine power, performance, and thermal behavior (Georgia Tech).
+- **EasyRider: Mitigating Power Transients in Datacenter-Scale Training Workloads** — [arXiv:2604.15522](https://arxiv.org/abs/2604.15522), 2026. Rack-level power architecture pairing passive components with actively-controlled auxiliary energy storage to filter millisecond peak-to-idle GPU training transients to grid-safe levels without modifying AI frameworks (Stanford).
+
+## Inference Energy & Efficiency
+
+- **Characterizing LLM Inference Energy-Performance Tradeoffs across Workloads and GPU Scaling** — [arXiv:2501.08219](https://arxiv.org/abs/2501.08219), 2025. DVFS frequency sweep; decode dominates 77–91% of time; up to 42% energy savings via downclocking (Maliakel, Ilager, Brandic).
+- **DynamoLLM: Designing LLM Inference Clusters for Performance and Energy Efficiency** — [arXiv:2408.00741](https://arxiv.org/abs/2408.00741), 2024. Dynamic reconfiguration of instances/parallelism/frequency; up to 53% energy savings (Stojkovic et al.; HPCA 2025).
+- **Where Do the Joules Go? Diagnosing Inference Energy Consumption** — [arXiv:2601.22076](https://arxiv.org/abs/2601.22076), 2026. Measurement study and analytical framework attributing LLM inference energy across hardware, software, and algorithmic factors (U-Michigan, Chowdhury group).
+- **GreenLLM: SLO-Aware Dynamic Frequency Scaling for Energy-Efficient LLM Serving** — [arXiv:2508.16449](https://arxiv.org/abs/2508.16449), 2025. Serving framework separating prefill and decode frequency control via DVFS, cutting GPU energy up to 34% under SLOs.
+- **The Illusion of Power Capping in LLM Decode: A Phase-Aware Energy Characterisation Across Attention Architectures** — [arXiv:2605.11999](https://arxiv.org/abs/2605.11999), 2026. Shows GPU power capping is inert in memory-bound autoregressive decode and that SM clock locking instead recovers up to 32% decode energy across attention architectures.
+- **EnergyLens: Predictive Energy-Aware Exploration for Multi-GPU LLM Inference Optimization** — [arXiv:2605.14249](https://arxiv.org/abs/2605.14249), 2026. Uses einsum specs and empirical models to predict energy-to-first-token and energy-per-output-token, optimizing multi-GPU inference without expensive profiling (MIT/IBM).
+- **SweetSpot: An Analytical Model for Predicting Energy Efficiency of LLM Inference** — [arXiv:2602.05695](https://arxiv.org/abs/2602.05695), 2026. Analytical model predicting LLM inference energy-efficiency curves vs input/output length, showing peak efficiency at short-to-moderate inputs and medium outputs.
+- **WattGPU: Predicting Inference Power and Latency on Unseen GPUs and LLMs** — [arXiv:2607.02391 (SuRE'26)](https://arxiv.org/abs/2607.02391), 2026. Predicts GPU power and inter-token latency for LLM inference from public metadata alone by normalizing power by TDP, generalizing to unseen hardware without profiling (42 LLMs x 8 GPUs, data+code released).
+- **The 1/W Law: Context-Length Routing Topology and GPU Generation Gains for LLM Inference Energy Efficiency** — [arXiv:2603.17280](https://arxiv.org/abs/2603.17280), 2026. Derives that tokens-per-watt halves each time context length doubles, showing routing topology affects inference energy efficiency more than GPU upgrades.
+- **VoltanaLLM: Energy-Efficient and SLO-Aware Disaggregated LLM Serving via Adaptive Frequency Control and State-Space Routing** — [arXiv:2509.04827](https://arxiv.org/abs/2509.04827), 2025. Co-designs phase-specific (prefill/decode) iteration-level GPU frequency control with a state-space request router, cutting inference energy up to 36.3% while keeping near-perfect SLO attainment.
+- **throttLL'eM: SLO-aware GPU Frequency Scaling for Energy Efficient LLM Inference Serving** — [arXiv:2408.05235](https://arxiv.org/abs/2408.05235), 2024. Seminal DVFS-for-serving work using ML projections of KV-cache usage to set instance and GPU frequency at iteration level, cutting energy up to 43.8% vs Triton while meeting SLOs.
+- **KAIROS: Stateful, Context-Aware Power-Efficient Agentic Inference Serving** — [arXiv:2604.16682](https://arxiv.org/abs/2604.16682), 2026. Uses agent context to jointly control GPU frequency, concurrency, and request placement for agentic inference, cutting average power ~27% while meeting targets.
+- **Festina: Energy-Aware Scheduling for Serverless LLM Serving on Shared GPUs** — [arXiv:2606.30391](https://arxiv.org/abs/2606.30391), 2026. Minimizes cluster-wide energy for serverless LLM inference by coordinating request placement, GPU allocation, and workload consolidation under SLOs.
+- **Power- and Fragmentation-aware Online Scheduling for GPU Datacenters (PWR)** — [arXiv:2412.17484](https://arxiv.org/abs/2412.17484), 2024. Scheduling policy jointly minimizing power consumption and GPU fragmentation by choosing efficient GPU-CPU pairings for datacenter workloads.
+
+## Grid Impact & Transients
+
+- **Wide-Area Power System Oscillations from Large-Scale AI Workloads** — [arXiv:2508.16457](https://arxiv.org/abs/2508.16457), 2025. AI-training power fluctuation → wide-area grid oscillations on a WECC 179-bus model (Ko, Zhu).
+- **Data Center Control Against Sub-Synchronous Resonance: A Data-Driven Approach** — [arXiv:2511.14141](https://arxiv.org/abs/2511.14141), 2025. Impedance-model-based data-driven controller that detects and suppresses sub-synchronous (below-60/50 Hz) resonance from data-center–grid interaction via workload management (Ruan, Ilić, Xie).
+- **Do Co-Located AI Training Jobs Synchronize? Load-Dependent Throttling as a Coupling Mechanism for Phase-Locking** — [arXiv:2607.19638](https://arxiv.org/abs/2607.19638), 2026. Models independent training jobs behind a shared oversubscribed power cap as a generalized Kuramoto system, showing load-dependent throttling (caps, droop, shared cooling) can phase-lock jobs into synchronized power cycles.
+- **Modal Analysis of Spatial Load Correlation in AI Data Center-Dominated Power Systems** — [arXiv:2606.13847](https://arxiv.org/abs/2606.13847), 2026. Applies Dynamic Mode Decomposition to inter-bus load-correlation evolution to detect quasi-periodic coordinated 2-30 s power swings from distributed-training gradient flushes, giving ~4 s advance warning.
+- **Spatial Load Correlation in AI Data-Center-Dominated Power Systems** — [arXiv:2606.13853](https://arxiv.org/abs/2606.13853), 2026. Real-time simulation showing spatially correlated AI-datacenter fluctuations erode classical load-diversity assumptions, amplifying aggregate disturbances and producing simultaneous multi-bus frequency/voltage deviations.
+- **Bit2Watt: A Cyber-Physical Vulnerability Exploiting GPU Workloads Across Power and Computing Infrastructures** — [arXiv:2607.05993 (CHES 2026)](https://arxiv.org/abs/2607.05993), 2026. Shows an authorized tenant can craft GPU workloads inducing synchronized sub-ms power modulations that destabilize local grids with high DER penetration (current THD to 46.8%, damping ratio -0.27), validated in simulation and hardware.
+- **Data Center Model for Transient Stability Analysis of Power Systems** — [arXiv:2505.16575](https://arxiv.org/abs/2505.16575), 2025. Dynamic data-center load model (UPS front-end + induction-motor cooling + AI pulsing-load component) for transient-stability studies, validated on Irish transmission data.
+- **A Theoretical Framework for Virtual Power Plant Integration with Gigawatt-Scale AI Data Centers: Multi-Timescale Control and Stability Analysis** — [arXiv:2506.17284](https://arxiv.org/abs/2506.17284), 2025. Hierarchical sub-millisecond control framework and revised stability criteria for VPPs absorbing extreme power fluctuations of GW-scale AI data centers in converter-dominated systems.
+- **Operational Risks in Grid Integration of Large Data Center Loads: Characteristics, Stability Assessments, and Sensitivity Studies** — [arXiv:2510.05437](https://arxiv.org/abs/2510.05437), 2025. Nonlinear-transient and small-signal metrics to quantify grid stability risk from rapid large-data-center load fluctuations.
+- **Limiting the Impact of AI Data Centers on Fatigue Life of Thermal Turbine Generators: A Frequency-Domain Approach** — [arXiv:2605.01173](https://arxiv.org/abs/2605.01173), 2026. Frequency-domain framework linking AI data-center power oscillations to steam/gas turbine-generator shaft fatigue, with location-dependent limits on acceptable load variation.
+- **Stability Enhancement of Centralized UPS Data Center Systems Under Weak-Grid Conditions** — [arXiv:2606.21536](https://arxiv.org/abs/2606.21536), 2026. Shows conventional PLL-PI UPS front-end rectifier control goes unstable at low short-circuit ratio and proposes PLL-free power-based control to keep centralized systems stable in weak grids.
+- **Assessing Risks of Hydro-Generator Shaft Fatigue from Data Center Load Oscillations** — [arXiv:2607.14412](https://arxiv.org/abs/2607.14412), 2026. Simulation framework quantifying how oscillating AI data-center demand torsionally excites and fatigues hydro-generator shafts.
+- **Enhancing Grid Resilience for Giga-Watt Scale Data Centers Using High Voltage Circuit Breaker Operated Braking Resistors** — [arXiv:2512.21295](https://arxiv.org/abs/2512.21295), 2025. Proposes HV-circuit-breaker-switched resistive braking at data-center substations to counter grid instability from sudden GW-scale load loss during voltage disturbances.
+- **Enhancing Data Center Low-Voltage Ride-Through** — [arXiv:2510.03867](https://arxiv.org/abs/2510.03867), 2025. Internal-distribution voltage-control strategy improving data-center low-voltage ride-through so facilities stay online through grid faults instead of tripping.
+- **A Pre-Dispatch Resonance Safety Criterion for AI Training Clusters** — [arXiv:2606.22096](https://arxiv.org/abs/2606.22096), 2026. Analytical criterion mapping training iteration period to grid electromechanical resonance 'danger bands', showing sub-second rescheduling cuts deviation 7.4x with no hardware change.
+- **Dynamic Load Model for Data Centers with Pattern-Consistent Calibration** — [arXiv:2602.07859](https://arxiv.org/abs/2602.07859), 2026. Hybrid physics + data-driven dynamic load model calibrated by temporal contrastive learning, capturing compound disconnection-reconnection dynamics of large electronic DC loads for grid planning.
+
+## Flexibility, Demand Response & Ancillary Services
+
+- **Providing load flexibility by reshaping power profiles of large language model workloads** — [Advances in Applied Energy 2025](https://www.sciencedirect.com/science/article/pii/S2666792425000265), 2025. Coordinated GPU-count × frequency control; energy-performance decoupling; ~6.8% power reduction.
+- **MAST: Global Scheduling of ML Training across Geo-Distributed Datacenters at Hyperscale** — [USENIX OSDI 2024](https://www.usenix.org/conference/osdi24/presentation/choudhury), 2024. Geographic load-shifting reduces the most-congested region's GPU demand-to-supply ratio from 2.63 → 0.98 (Choudhury et al., Meta).
+- **Spatio-temporal load shifting for truly clean computing** — [arXiv:2405.00036](https://arxiv.org/abs/2405.00036), 2025. 56 location combinations; each percentage point of flexible load lowers 24/7 CFE cost by ~1.29 €/MWh (Riepin, Zavala, Brown; AAE vol.17 100202). Code: [space-time-optimization](https://github.com/Irieo/space-time-optimization).
+- **Source Side Mitigation of AI Datacenter Power Fluctuations with a Hybrid Energy Storage System and Residual Differentiable Predictive Control** — [arXiv:2606.04869](https://arxiv.org/abs/2606.04869), 2026. Battery+supercapacitor HESS with residual differentiable predictive control that smooths datacenter active power at the interconnection using a workload-driven disturbance model, cutting generator frequency deviation >80%.
+- **Mitigation of Datacenter Demand Ramping and Fluctuation using Hybrid ESS and Supercapacitor** — [arXiv:2512.08076](https://arxiv.org/abs/2512.08076), 2025. Multi-timescale hybrid storage controller splitting demand via a high-pass filter — battery for slow ramps, supercapacitor for fast fluctuations — to suppress both demand ramping and high-frequency training swings.
+- **GPU-to-Grid: Voltage Regulation via GPU Utilization Control** — [arXiv:2602.05116](https://arxiv.org/abs/2602.05116), 2026. Couples device-level GPU power control to distribution-grid voltage objectives, showing inference flexibility can regulate both upper- and lower-voltage violations.
+- **From Tokens to Energy Flexibility: Quantization-Enabled Demand Response for Data Centers with LLM Inference Workloads** — [arXiv:2606.18851](https://arxiv.org/abs/2606.18851), 2026. Uses LLM model quantization as a demand-response flexibility lever, cutting data-center operating cost 34.3% without curtailing served token volume.
+- **Inference as Flexibility: Ramp Management for Transmission-Connected AI Data Centres** — [arXiv:2606.21833](https://arxiv.org/abs/2606.21833), 2026. Uses inference batch-size adjustment plus BESS to offset training power surges at a 150 MW site, cutting battery discharge energy 71% while meeting a 10 MW/min ramp limit.
+- **Carbon-Aware Compute–Power Scheduling for AI Data Centers with Microgrid Prosumer Operations** — [arXiv:2605.03751](https://arxiv.org/abs/2605.03751), 2026. MILP framework co-scheduling rigid training jobs, elastic inference routing, and on-site generation/battery dispatch to cut carbon and cost across distributed AI datacenters with microgrids.
+- **Coordinating GPU Data Centers and Power Grid Regulation Service for Exogenous Carbon Benefits (EcoCenter)** — [arXiv:2601.22487](https://arxiv.org/abs/2601.22487), 2026. Lets GPU datacenters provide power-grid frequency regulation, displacing fossil reserves for carbon reductions that can exceed the datacenter's own operational emissions.
+- **Turning AI Data Centers into Grid-Interactive Assets: Results from a Field Demonstration in Phoenix, Arizona** — [arXiv:2507.00909](https://arxiv.org/abs/2507.00909), 2025. Emerald AI / EPRI DCFlex field demo showing a live AI GPU cluster's power cut ~25% for 3 hours during simulated grid stress while preserving AI quality of service.
+- **To Defer or To Shift? The Role of AI Data Center Flexibility on Grid Interconnection** — [arXiv:2604.05376](https://arxiv.org/abs/2604.05376), 2026. Models AI-load temporal-vs-spatial shifting inside a capacity-expansion framework to quantify how data-center flexibility relieves large-load interconnection bottlenecks, generation cost, and congestion.
+- **A Sensitivity Analysis of Flexibility from GPU-Heavy Data Centers** — [arXiv:2603.27831](https://arxiv.org/abs/2603.27831), 2026. Shows an energy-aware GPU job scheduler beats FIFO on profit while surfacing latent power flexibility by deferring low-utilization jobs during high-price/peak periods.
+- **Grid Frequency Stability Support Potential of Data Center: A Quantitative Assessment of Flexibility** — [arXiv:2510.01050](https://arxiv.org/abs/2510.01050), 2025. Embeds data-center demand-side frequency response into a frequency-secured unit-commitment problem to quantify fast controllable flexibility's value to grid frequency stability.
+- **Harnessing Flexible Spatial and Temporal Data Center Workloads for Grid Regulation Services** — [arXiv:2602.01508](https://arxiv.org/abs/2602.01508), 2026. Day-ahead co-optimization jointly deciding geo-distributed workload dispatch and frequency-regulation capacity bids via a space-time network model so committed regulation stays feasible under queueing dynamics.
+- **When Market Prices Drive the Load: Modeling, Grid-Security Analysis, and Mitigation of Data Center Workload Scheduling** — [arXiv:2604.06924](https://arxiv.org/abs/2604.06924), 2026. Job-level MILP scheduling model for price-driven multi-site data centers, analyzing and mitigating grid-security risks that arise when cloud platforms shift load for energy arbitrage.
+- **Sustainable Carbon-Aware and Water-Efficient LLM Scheduling in Geo-Distributed Cloud Datacenters (SLIT)** — [arXiv:2505.23554](https://arxiv.org/abs/2505.23554), 2025. Co-optimizes LLM time-to-first-token QoS against carbon emissions, water usage, and energy cost across geo-distributed datacenters for the inference phase.
+- **Green-LLM: Optimal Workload Allocation for Environmentally-Aware Distributed Inference** — [arXiv:2507.09942](https://arxiv.org/abs/2507.09942), 2025. Lexicographic multi-objective allocator shifting LLM inference across heterogeneous edge datacenters with onsite renewables, tracking dynamic prices, carbon intensity, and token-dependent energy.
+- **FREESH: Fair, Resource- and Energy-Efficient Scheduling for LLM Serving on Heterogeneous GPUs** — [arXiv:2511.00807](https://arxiv.org/abs/2511.00807), 2025. Jointly optimizes query routing and GPU scheduling across geo-distributed datacenters to minimize carbon and energy under latency and fairness constraints for LLM serving.
+
+## Thermal Characterization
+
+- **TAPAS: Thermal- and Power-Aware Scheduling for LLM Inference in Cloud Platforms** — [arXiv:2501.02600](https://arxiv.org/abs/2501.02600), 2025. Millisecond-scale thermal-power profiling + scheduling; 17% cooling reduction, 40% capacity increase (Stojkovic et al.; ASPLOS 2025).
+- **LC-Opt: Benchmarking Reinforcement Learning and Agentic AI for End-to-End Liquid Cooling Optimization in Data Centers** — [arXiv:2511.00116](https://arxiv.org/abs/2511.00116), 2025. High-fidelity supercomputer cooling digital-twin benchmark for evaluating multi-agent RL and LLM-agentic methods on end-to-end liquid-cooling control.
+- **Coordinated Cooling and Compute Management for AI Datacenters** — [arXiv:2601.08113](https://arxiv.org/abs/2601.08113), 2026. Hierarchical control framework jointly tuning GPU parallelism, DVFS, and cooling knobs to improve datacenter energy efficiency under thermal constraints using real Azure inference traces.
+- **Lit Silicon: A Case Where Thermal Imbalance Couples Concurrent Execution in Multiple GPUs** — [arXiv:2511.09861](https://arxiv.org/abs/2511.09861), 2025. Identifies the 'Lit Silicon' effect where inter-GPU thermal imbalance causes stragglers in multi-GPU LLM training, with detection/mitigation giving up to 6% performance and 4% power gains.
+- **ThermaLoop: First-Principles Simulator for Direct-to-Chip Liquid Cooling in AI Datacenters** — [Walla17x/thermaloop (MIT)](https://github.com/Walla17x/thermaloop), 2026. Couples a workload-driven 3-state GPU power model (~700 W/GPU) to a 5-node RC thermal network and an epsilon-NTU cooling-distribution-unit model, calibrated against published experimental anchors.
+
+## Energy Accounting & Composition
+
+- **Energy Calculus: A Compositional Algebra of Energy in Computational Systems** — [arXiv:2607.11087](https://arxiv.org/abs/2607.11087), 2026. Compositional energy algebra for AI workloads; explicitly lists peak power, instantaneous waveforms, and power delivery as open problems (Chowdhury, Chung et al.; ML.ENERGY).
+- **CodeCarbon: Track Emissions from Compute and Recommend Ways to Reduce Their Impact** — [mlco2/codecarbon](https://github.com/mlco2/codecarbon), 2020-2026. Widely-used Python package estimating electricity draw of CPU/GPU/RAM during ML workloads and converting it to CO2 using regional grid carbon-intensity data.
+- **carbontracker: Track and Predict the Energy Consumption and Carbon Footprint of Training Deep Learning Models** — [saintslab/carbontracker](https://github.com/saintslab/carbontracker), 2020-2026. Monitors and predicts training-time energy and CO2 from CPU/GPU telemetry, with forecasting and report generation for Slurm/cloud environments.
+- **Breaking the ICE: Promises and Challenges of Benchmarks for Inference Carbon & Energy Estimation for LLMs** — [arXiv:2506.08727](https://arxiv.org/abs/2506.08727), 2025. Critical evaluation of existing LLM inference energy/carbon benchmarks plus R-ICE, a framework estimating prompt-level carbon from benchmark data without intrusive measurement.
+
+## Apple Silicon & Edge
+
+- **Apple vs. Oranges: Evaluating the Apple Silicon M-Series SoCs for HPC Performance and Efficiency** — [arXiv:2502.05317](https://arxiv.org/abs/2502.05317), 2025. M1–M4 measurement via `powermetrics`; >200 GFLOPS/W GPU+accelerator efficiency (Hübner, Hu, Peng, Markidis).
+- **Profiling Apple Silicon Performance for ML Training** — [arXiv:2501.14925](https://arxiv.org/abs/2501.14925), 2025. Apple Silicon training power; page-fault / kernel-launch overhead breakdown (Feng, Xu, Wang, Lin).
+- **LLM Inference at the Edge: Mobile, NPU, and GPU Performance Efficiency Trade-offs Under Sustained Load** — [arXiv:2603.23640](https://arxiv.org/abs/2603.23640), 2026. Measures throughput, latency, power, and thermals of a 4-bit Qwen 2.5 1.5B across Raspberry Pi 5 + Hailo-10H NPU, Galaxy S24 Ultra, iPhone 16 Pro, and RTX 4050, showing thermal envelope beats peak compute as the binding constraint.
+- **Cloud to Edge: Benchmarking LLM Inference on Hardware-Accelerated Single-Board Computers** — [arXiv:2604.24785](https://arxiv.org/abs/2604.24785), 2026. Benchmarks LLM inference energy per Mtok on single-board computers, reporting ~9.6x-40x energy-efficiency gains from a Hailo NPU over CPU/GPU baselines on the Raspberry Pi 5.
+
+## MoE & Sparse Models
+
+- **MoE-Inference-Bench: Performance Evaluation of Mixture of Expert Large Language and Vision Models** — [arXiv:2508.17467](https://arxiv.org/abs/2508.17467), 2025. Mixtral / DeepSeek-MoE inference benchmark; sparse activation power signatures; larger power fluctuation than dense from expert-routing randomness (Chitty-Venkata et al.).
+
+## Load Forecasting
+
+- **Short-Term Load Forecasting for AI-Data Center** — [arXiv:2503.07756](https://arxiv.org/abs/2503.07756), 2025. LSTM/GRU/1D-CNN GPU-power forecasting on MIT Supercloud, 1 s granularity, 300-step lookback (Mughees, Li, Chen, Li; U Alberta, IEEE PES GM 2025).
+
+## Datasets & Benchmarks
+
+- **TokenPowerBench: Benchmarking the Power Consumption of LLM Inference** — [arXiv:2512.03024](https://arxiv.org/abs/2512.03024), 2025. LLM-inference power benchmark with prefill/decode energy separation across Llama/Falcon/Qwen/Mistral 1B–405B (Niu et al.; AAAI 2026).
+- **MIT Supercloud Dataset**. Labeled HPC/AI job telemetry incl. GPU power at 1 s granularity; widely used for AIDC load forecasting.
+- **The ML.ENERGY Benchmark: Toward Automated Inference Energy Measurement and Optimization** — [arXiv:2505.06371 (NeurIPS 2025)](https://arxiv.org/abs/2505.06371), 2025. Inference energy benchmark suite + public leaderboard covering 40 model architectures across 6 tasks (LLM chat/coding, VLM, diffusion) on H100/B200, with automated optimization cutting energy >40%.
+- **ml-energy/benchmark-v3 (ML.ENERGY Leaderboard v3.0 dataset)** — [Hugging Face Datasets (ml-energy)](https://huggingface.co/datasets/ml-energy/benchmark-v3), 2025. ~98.6 GB public parquet dataset with per-output-token energy, GPU power, throughput and inter-token latency for LLM and diffusion runs on NVIDIA H100/B200.
+- **MLPerf Power: Benchmarking the Energy Efficiency of Machine Learning Systems from Microwatts to Megawatts** — [arXiv:2410.12032 (IEEE HPCA 2025)](https://arxiv.org/abs/2410.12032), 2024. Standardized wall-plug energy-efficiency benchmarking methodology spanning microwatts-to-megawatts, with 1,841 reproducible measurements across 60 systems from IoT to datacenter scale.
+- **MLPerf-Power-HPCA-2025 (data + analysis repo)** — [GitHub (aryatschand)](https://github.com/aryatschand/MLPerf-Power-HPCA-2025), 2025. Cleaned MLPerf Power measurement data and a Python/Docker pipeline to reproduce all power-vs-performance figures from the MLPerf Power paper.
+- **Watt Counts: Energy-Aware Benchmark for Sustainable LLM Inference on Heterogeneous GPU Architectures** — [arXiv:2604.09048](https://arxiv.org/abs/2604.09048), 2026. Largest open-access LLM energy dataset: 5,000+ experiments over 50 LLMs and 10 NVIDIA GPUs (370 LLM-GPU pairs, 14M+ power samples) in batch and server modes, with a community-extensible benchmark.
+- **AI Energy Score Leaderboard** — [Hugging Face Spaces (AIEnergyScore)](https://huggingface.co/spaces/AIEnergyScore/Leaderboard), 2025. Standardized 1-5 star inference energy-efficiency leaderboard measuring GPU watt-hours per 1,000 queries on H100 across 10 tasks and multiple modalities, with decentralized model submission.
+- **optimum-benchmark/llm-perf-leaderboard (LLM-Perf Leaderboard dataset)** — [Hugging Face Datasets (optimum-benchmark)](https://huggingface.co/datasets/optimum-benchmark/llm-perf-leaderboard), 2024. Public dataset behind Hugging Face's LLM-Perf Leaderboard reporting measured per-token energy (prefill/decode, CPU/GPU) alongside latency, throughput and memory across hardware backends.
+- **LLM-Inference-Engine-Benchmark: Power/Energy across vLLM, DeepSpeed, TensorRT-LLM, Transformers** — [chenxuniu/... (HotCarbon '25)](https://github.com/chenxuniu/LLM-Inference-Engine-Benchmark), 2025. First systematic power-consumption comparison across major LLM inference engines with GPU/CPU/DRAM component-wise breakdown and energy-per-token/per-response metrics on real workloads.
+- **Bench360: Full-Stack Local LLM Deployment Benchmark (latency, throughput, quality, energy, cost)** — [slinusc/bench360](https://github.com/slinusc/bench360), 2025. Modular suite measuring per-request GPU/CPU utilization and energy alongside latency/throughput/quality and deriving energy-based cost across backends and quantization formats.
+
+## Tools & Simulators
+
+- **powertrace-sim** — [GitHub](https://github.com/grantwilkins/powertrace-sim). GMM–BiGRU power-trace generation; Server→Site aggregation. Data-collection scripts + trained classifiers released.
+- **LLMServingSim: A Unified Simulator for Heterogeneous and Disaggregated LLM Serving Infrastructure** — [GitHub](https://github.com/casys-kaist/LLMServingSim). Cycle-level LLM serving simulator (vLLM-mirroring scheduler + ASTRA-Sim network backend); per-node power/energy modeling (CASYS, KAIST).
+- **GPGPU-Sim / AccelWattch** — [GitHub](https://github.com/accel-sim/gpgpu-sim_distribution). Cycle-accurate GPU simulation with the validated AccelWattch power model (enable via `-power_simulation_enabled 1`).
+- **Zeus: Measure and Optimize the Energy Consumption of Your AI Applications** — [ml-energy/zeus (The ML.ENERGY Initiative)](https://github.com/ml-energy/zeus), 2022-2026. Canonical Python library to measure and optimize DL training/inference energy across NVIDIA/AMD GPUs, CPU/DRAM, Apple Silicon and Jetson, with power-limit and frequency optimization algorithms.
+- **NVIDIA DCGM-Exporter: GPU Metrics Exporter for Prometheus** — [NVIDIA/dcgm-exporter](https://github.com/NVIDIA/dcgm-exporter), 2021-2026. Production-grade exporter streaming per-GPU power, energy, clocks and thermals into Prometheus/Grafana — the de-facto telemetry backbone for datacenter GPU power monitoring.
+- **Accelergy: Architecture-Level Energy/Area Estimation for Accelerator Designs** — [Accelergy-Project/accelergy (MIT, ICCAD)](https://github.com/Accelergy-Project/accelergy), 2019-2026. Seminal architecture-level energy/area estimation infrastructure (pairs with Timeloop) computing accelerator power from component specs and workload action counts via pluggable estimation plug-ins.
+- **OpenG2G: A Simulation Platform for AI Datacenter-Grid Runtime Coordination** — [arXiv:2605.05519](https://arxiv.org/abs/2605.05519), 2026. Open co-simulation platform for designing and comparing runtime control paradigms that coordinate AI-datacenter power (including training fluctuations) with the electrical grid under interconnection delays.
+
+## Patents
+
+- **Throughput-Optimized, Quality-of-Service Aware Power Capping System** — [US11966273B2 (Google)](https://patents.google.com/patent/US11966273B2/en), 2024. Datacenter power-capping controller that throttles lower-priority (e.g. ML training) workloads via CPU-bandwidth controls to hold a power budget while protecting latency-sensitive jobs, with telemetry-dropout failover.
+- **Power Stabilization Using Energy Storage** — [US12562573B2 (Microsoft)](https://patents.google.com/patent/US12562573B2), 2023. Power stabilizer using a bi-directional converter and capacitor bank to inject/absorb current on the rail, driving datacenter draw toward a target to smooth AI-load fluctuations and reduce grid stress.
+- **Predictive Load Transient Based Voltage Regulator Turbo for Voltage Droop Minimization** — [US12308740B2 (Google)](https://patents.google.com/patent/US12308740B2), 2022. VRM control using predictive load information from AI/ML chips (long pipelines let large current transients be forecast tens of ns ahead) to pre-boost regulator responsiveness and minimize output-voltage overshoot/undershoot.
+- **Combined Datacenter and Rack Throttling** — [US12560987B2 (Google)](https://patents.google.com/patent/US12560987B2), 2023. Two-level throttling where payloads sense reduced rectifier input voltage, compute throttling offsets, and lower voltage references to cut power during a power event while riding through long enough to back up data.
+- **Dynamic System Power Load Management** — [US20220318056A1 (AMD/ATI)](https://patents.google.com/patent/US20220318056A1/en), 2021. Monitors processor power and auto-launches precompiled 'target power workloads' (dummy kernels) when draw falls below a floor, smoothing the damaging peak-to-idle swings of HPC/ML workloads (di/dt and voltage-droop mitigation).
+- **Control System for Mitigating Rectifier Caused Power Anomalies in Data Centers** — [US12541240B2 (Google)](https://patents.google.com/patent/US12541240B2/en), 2024. Control system dynamically adjusting rectifier voltage-protection thresholds in datacenter power distribution based on monitored network/load conditions to prevent power anomalies affecting accelerator load availability.
+- **Power Optimized Architecture for Large Language Model-Based Applications** — [US20250068838A1 (Qualcomm)](https://patents.google.com/patent/US20250068838A1/en), 2023. SoC architecture co-locating LLM processing blocks with memory controllers/DDR PHY in a shared voltage domain to shorten data paths, cutting LLM-inference power by ~20% (~1.5 W).
+
+## Method Reviews
+
+In-depth critical reviews of selected works (methodology deep-dives, strengths/limitations, positioning):
+
+- **From Servers to Sites** (Wilkins et al.) — compositional GMM–BiGRU trace generation: method pipeline, dense/MoE bifurcation, and where 250 ms telemetry stops short of the sub-second electrical regime.
+- **AI Data Centers and Power System Sustainability** (Huang, Deb, Zareipour) — marginal-emissions framing, flexibility economics, and the gap between a top-down sustainability survey and measured transient waveforms.
+
+## Contributing
+
+Contributions welcome. Please keep entries to peer-reviewed papers, preprints, datasets, actively-maintained tools, or granted/published patents that are **directly about AIDC power/energy modeling**. One line per entry: **title** — venue/arXiv link, year, one-sentence description of the contribution. Verify the link resolves before submitting. Open a PR or issue.
+
+## License
+
+[![CC0](https://licensebuttons.net/p/zero/1.0/88x31.png)](https://creativecommons.org/publicdomain/zero/1.0/)
+
+To the extent possible under law, contributors have waived all copyright and related rights to this curated list (CC0 1.0).
